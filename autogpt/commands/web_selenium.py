@@ -70,27 +70,29 @@ def scrape_text_with_selenium(url: str) -> tuple[WebDriver, str]:
     )
 
     if CFG.selenium_web_browser == "firefox":
-        driver = webdriver.Firefox(
-            executable_path=GeckoDriverManager().install(), options=options
-        )
-    elif CFG.selenium_web_browser == "safari":
-        # Requires a bit more setup on the users end
-        # See https://developer.apple.com/documentation/webkit/testing_with_webdriver_in_safari
-        driver = webdriver.Safari(options=options)
-    else:
-        if platform == "linux" or platform == "linux2":
-            options.add_argument("--disable-dev-shm-usage")
-            options.add_argument("--remote-debugging-port=9222")
+    driver = webdriver.Firefox(
+        executable_path=GeckoDriverManager().install(), options=options
+    )
+elif CFG.selenium_web_browser == "safari":
+    # Requires a bit more setup on the users end
+    # See https://developer.apple.com/documentation/webkit/testing_with_webdriver_in_safari
+    driver = webdriver.Safari(options=options)
+else:
+    
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--remote-debugging-port=9222")
+    options.add_argument("--no-sandbox")    
+    options.add_argument("--headless")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--ignore-ssl-errors=true")
+    options.add_argument("--ignore-certificate-errors")      
+    options.binary_location = "F:\Program Files\Google\Chrome\Application\chrome.exe"
+    driver = webdriver.Chrome(
+        #executable_path=ChromeDriverManager().install(), options=options
+        executable_path="F:\user\Downloads\chromedriver_win32\chromedriver.exe", options=options
 
-        options.add_argument("--no-sandbox")
-        if CFG.selenium_headless:
-            options.add_argument("--headless")
-            options.add_argument("--disable-gpu")
-
-        driver = webdriver.Chrome(
-            executable_path=ChromeDriverManager().install(), options=options
-        )
-    driver.get(url)
+    )
+driver.get(url)
 
     WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.TAG_NAME, "body"))
